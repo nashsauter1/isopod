@@ -3,7 +3,7 @@
 # exact promoted image digest, not selected as "the newest successful build".
 #
 # The release workflow (release-from-build.yml) iterates the successful runs of
-# build-image.yml newest-first and downloads each run's `sbom-finpilot`
+# build-image.yml newest-first and downloads each run's `sbom-isopod`
 # artifact, keeping the first whose recorded image digest matches the promoted
 # digest. The failure this fixes: image A is promoted and released; a later
 # image B builds successfully (so it sorts first); if the run selected "newest"
@@ -57,7 +57,7 @@ if [[ "${1}" == "run" && "${2}" == "download" ]]; then
   dir="${!#}"
   mkdir -p "${dir}"
   if [[ "${STUB_BEHAVIOR}" == "a-missing" ]]; then
-    echo "artifact \"sbom-finpilot\" for run ${run_id} not found" >&2
+    echo "artifact \"sbom-isopod\" for run ${run_id} not found" >&2
     exit 2
   fi
   if [[ "${run_id}" == "100" ]]; then
@@ -115,7 +115,7 @@ setup() {
 	local gh_output; gh_output="$(mktemp)"
 	local run_id
 	# skopeo reports the promoted digest (A); gh lists B newest first, then A.
-	run_id="$(env STUB_PROMOTED_DIGEST="${A_DIGEST}" STUB_A_DIGEST="${A_DIGEST}" STUB_B_DIGEST="${B_DIGEST}" STUB_BEHAVIOR="ok" PATH="${bin}:${PATH}" GH_TOKEN=test GITHUB_OUTPUT="${gh_output}" BUILD_WORKFLOW=build-image.yml BUILD_BRANCH=main REPOSITORY=projectbluefin/finpilot IMAGE=ghcr.io/projectbluefin/finpilot STREAM_NAME=stable SBOM_ARTIFACT=sbom-finpilot bash "${SCRIPT}" 2>/dev/null)"
+	run_id="$(env STUB_PROMOTED_DIGEST="${A_DIGEST}" STUB_A_DIGEST="${A_DIGEST}" STUB_B_DIGEST="${B_DIGEST}" STUB_BEHAVIOR="ok" PATH="${bin}:${PATH}" GH_TOKEN=test GITHUB_OUTPUT="${gh_output}" BUILD_WORKFLOW=build-image.yml BUILD_BRANCH=main REPOSITORY=projectbluefin/isopod IMAGE=ghcr.io/projectbluefin/isopod STREAM_NAME=stable SBOM_ARTIFACT=sbom-isopod bash "${SCRIPT}" 2>/dev/null)"
 	run_id="$(sed -n 's/^run_id=//p' "${gh_output}")"
 
 	[ "${run_id}" = "100" ]
@@ -130,7 +130,7 @@ setup() {
 	local out; local status=0
 	# skopeo reports the promoted digest (A), but no run's artifact can be
 	# downloaded, so the loop must fail loudly before publication.
-	if out="$(env STUB_PROMOTED_DIGEST="${A_DIGEST}" STUB_A_DIGEST="${A_DIGEST}" STUB_B_DIGEST="${B_DIGEST}" STUB_BEHAVIOR="a-missing" PATH="${bin}:${PATH}" GH_TOKEN=test GITHUB_OUTPUT="${gh_output}" BUILD_WORKFLOW=build-image.yml BUILD_BRANCH=main REPOSITORY=projectbluefin/finpilot IMAGE=ghcr.io/projectbluefin/finpilot STREAM_NAME=stable SBOM_ARTIFACT=sbom-finpilot bash "${SCRIPT}" 2>&1)"; then
+	if out="$(env STUB_PROMOTED_DIGEST="${A_DIGEST}" STUB_A_DIGEST="${A_DIGEST}" STUB_B_DIGEST="${B_DIGEST}" STUB_BEHAVIOR="a-missing" PATH="${bin}:${PATH}" GH_TOKEN=test GITHUB_OUTPUT="${gh_output}" BUILD_WORKFLOW=build-image.yml BUILD_BRANCH=main REPOSITORY=projectbluefin/isopod IMAGE=ghcr.io/projectbluefin/isopod STREAM_NAME=stable SBOM_ARTIFACT=sbom-isopod bash "${SCRIPT}" 2>&1)"; then
 		status=0
 	else
 		status=$?

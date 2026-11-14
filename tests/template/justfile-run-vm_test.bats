@@ -291,15 +291,15 @@ host_has_ovmf() {
 	unstub qemu-system-x86_64
 	run_recipe run-vm-qcow2
 	[ "$status" -eq 0 ]
-	[ "$(cat "${LOGS}/build.log")" = "build-qcow2 localhost/finpilot stable" ]
+	[ "$(cat "${LOGS}/build.log")" = "build-qcow2 localhost/isopod stable" ]
 	grep -Fxq "${SANDBOX}/output/qcow2/disk.qcow2:/boot.qcow2" "${LOGS}/podman.args"
 }
 
 @test "run-vm-iso: a missing artifact is built with the image and tag the caller named" {
 	unstub qemu-system-x86_64
-	run_recipe run-vm-iso ghcr.io/example/finpilot stable-testing
+	run_recipe run-vm-iso ghcr.io/example/isopod stable-testing
 	[ "$status" -eq 0 ]
-	[ "$(cat "${LOGS}/build.log")" = "build-iso ghcr.io/example/finpilot stable-testing" ]
+	[ "$(cat "${LOGS}/build.log")" = "build-iso ghcr.io/example/isopod stable-testing" ]
 	grep -Fxq "${SANDBOX}/output/bootiso/install.iso:/boot.iso" "${LOGS}/podman.args"
 }
 

@@ -63,30 +63,30 @@ run_sbom() {
 }
 
 @test "sbom: mounts the localhost image, scans the mount as a directory, unmounts" {
-	run_sbom finpilot stable out
+	run_sbom isopod stable out
 	[ "$status" -eq 0 ]
-	grep -Fxq 'podman image mount localhost/finpilot:stable' "${CALL_LOG}"
-	grep -Fxq 'syft dir:/var/lib/containers/storage/overlay/abc/merged --source-name finpilot --source-version stable --parallelism 1 --override-default-catalogers rpm-db-cataloger -o spdx-json=out/finpilot.sbom.json' "${CALL_LOG}"
-	grep -Fxq 'podman image unmount localhost/finpilot:stable' "${CALL_LOG}"
-	[ -s "${SANDBOX}/out/finpilot.sbom.json" ]
+	grep -Fxq 'podman image mount localhost/isopod:stable' "${CALL_LOG}"
+	grep -Fxq 'syft dir:/var/lib/containers/storage/overlay/abc/merged --source-name isopod --source-version stable --parallelism 1 --override-default-catalogers rpm-db-cataloger -o spdx-json=out/isopod.sbom.json' "${CALL_LOG}"
+	grep -Fxq 'podman image unmount localhost/isopod:stable' "${CALL_LOG}"
+	[ -s "${SANDBOX}/out/isopod.sbom.json" ]
 }
 
 @test "sbom: scans in order mount, syft, unmount" {
-	run_sbom finpilot stable out
+	run_sbom isopod stable out
 	[ "$status" -eq 0 ]
-	[ "$(sed -n 1p "${CALL_LOG}")" = 'podman image mount localhost/finpilot:stable' ]
+	[ "$(sed -n 1p "${CALL_LOG}")" = 'podman image mount localhost/isopod:stable' ]
 	[[ "$(sed -n 2p "${CALL_LOG}")" == syft\ dir:* ]]
-	[ "$(sed -n 3p "${CALL_LOG}")" = 'podman image unmount localhost/finpilot:stable' ]
+	[ "$(sed -n 3p "${CALL_LOG}")" = 'podman image unmount localhost/isopod:stable' ]
 }
 
 @test "sbom: unmounts and fails when the scan fails" {
-	SYFT_STUB_FAIL=1 run_sbom finpilot stable out
+	SYFT_STUB_FAIL=1 run_sbom isopod stable out
 	[ "$status" -ne 0 ]
-	grep -Fxq 'podman image unmount localhost/finpilot:stable' "${CALL_LOG}"
+	grep -Fxq 'podman image unmount localhost/isopod:stable' "${CALL_LOG}"
 }
 
 @test "sbom: does not use syft's podman: source (it needs a Podman socket, #683)" {
-	run_sbom finpilot stable out
+	run_sbom isopod stable out
 	[ "$status" -eq 0 ]
 	run grep -F 'podman:' "${CALL_LOG}"
 	[ "$status" -ne 0 ]
@@ -95,7 +95,7 @@ run_sbom() {
 @test "sbom: runs the binary named by SYFT" {
 	cp "${STUB_BIN}/syft" "${SANDBOX}/my-syft"
 	sed -i 's/^printf .syft /printf '"'"'my-syft /' "${SANDBOX}/my-syft"
-	SYFT="${SANDBOX}/my-syft" run_sbom finpilot stable out
+	SYFT="${SANDBOX}/my-syft" run_sbom isopod stable out
 	[ "$status" -eq 0 ]
 	grep -q '^my-syft dir:' "${CALL_LOG}"
 	run grep -q '^syft ' "${CALL_LOG}"
@@ -105,8 +105,8 @@ run_sbom() {
 @test "sbom: defaults to IMAGE_NAME, DEFAULT_TAG and sbom-current" {
 	run_sbom
 	[ "$status" -eq 0 ]
-	grep -Fxq 'podman image mount localhost/finpilot:stable' "${CALL_LOG}"
-	[ -s "${SANDBOX}/sbom-current/finpilot.sbom.json" ]
+	grep -Fxq 'podman image mount localhost/isopod:stable' "${CALL_LOG}"
+	[ -s "${SANDBOX}/sbom-current/isopod.sbom.json" ]
 }
 
 @test "wiring: build-image.yml and pr-build.yml both scan through the sbom recipe" {

@@ -296,3 +296,11 @@ more than documentation produces a green `Build and Push Image` run and a
   merge queue needs an organization, so enrollment is off.
 - **The release gate reports `release/blocked`** — the labels in step 10 are
   missing, or the candidate image is unsigned.
+- **`just test-contract` dies with "No such file or directory"** — the recipes
+  use a `#!/usr/bin/bash` shebang that NixOS does not provide. Don't debug the
+  recipe; verify the identity contract directly:
+  `nix-shell -p bats --run "bats tests/contract/identity_test.bats"`. The rest
+  of the contract suite needs Homebrew (`brew`), so on a host without it the
+  identity test is the local gate and the full suite runs in CI. Run any other
+  missing CLI (`gh`, `just`) ad hoc the same way — `nix-shell -p <pkg> --run
+  '<command>'` — instead of installing it permanently.

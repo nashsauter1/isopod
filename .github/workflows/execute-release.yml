@@ -107,7 +107,7 @@ jobs:
     # the runner never pulls and unpacks the ~3 GB image a second time and the
     # SBOM is produced instead of being killed (finpilot #678). The pinned
     # reusable selects the newest successful build and would attach a newer
-    # build's SBOM to an older promoted image, so finpilot uses a local copy
+    # build's SBOM to an older promoted image, so isopod uses a local copy
     # (release-from-build.yml) that binds the download to the exact promoted
     # digest below, with no rebuild.
     uses: ./.github/workflows/release-from-build.yml
@@ -119,7 +119,7 @@ jobs:
       badge_label: Stable
       build_workflow: build-image.yml
       build_branch: main
-      sbom_artifact: sbom-finpilot
+      sbom_artifact: sbom-isopod
       cert_identity_regexp: >-
         ^https://github\.com/${{ github.repository }}/\.github/workflows/
       docs_url: ${{ github.server_url }}/${{ github.repository }}/releases
